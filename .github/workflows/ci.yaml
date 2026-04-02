@@ -6,6 +6,21 @@ on:
 
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run lint
+        run: ruff check .
+
   test:
     runs-on: ubuntu-latest
 
