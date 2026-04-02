@@ -7,4 +7,4 @@ def test_sum() -> None:
 
 # should fail
 def test_resta() -> None:
-    assert resta(5, 3) == 1
+    assert resta(5, 3) == 2
