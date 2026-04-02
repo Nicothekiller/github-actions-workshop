@@ -19,6 +19,9 @@
             (pkgs.python3.withPackages (
               ps: with ps; [
                 pytest
+                fastapi
+                pydantic
+                httpx
               ]
             ))
           ];
