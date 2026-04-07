@@ -56,7 +56,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
       - name: Build docker image
-        run: docker build -t github-actions-workshop:latest -f app/Dockerfile .
+        run: docker build -t github-actions-workshop:latest .
 
   docker-push:
     runs-on: ubuntu-latest
