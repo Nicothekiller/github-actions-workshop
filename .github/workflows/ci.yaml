@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - dev
     tags:
       - "v*"
   pull_request:
@@ -81,11 +82,11 @@ jobs:
         with:
           images: ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-workshop
           tags: |
-            type:raw,value=latest
-            type:raw,value=main,enable={{is_default_branch}}
-            type:ref,event=branch
-            type:ref,event=tag
-            type:sha
+            type=raw,value=latest
+            type=raw,value=main,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=sha
       - name: Build & Push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -95,6 +96,31 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+  docker-push-dev:
+    runs-on: ubuntu-latest
+    needs: docker-build
+
+    if: github.ref == 'refs/heads/dev'
+    
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Login in Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build & Push Dev Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/github-actions-workshop:dev
+
   deploy-prod:
     runs-on: ubuntu-latest
     needs: docker-push
@@ -102,4 +128,12 @@ jobs:
     steps:
       - name: Trigger render PROD deploy
         run: curl -X POST "${{ secrets.RENDER_PROD_DEPLOY_HOOK }}"
+
+  deploy-dev:
+    runs-on: ubuntu-latest
+    needs: docker-push-dev
+    if: github.ref == 'refs/heads/dev'
+    steps:
+      - name: Trigger render DEV deploy
+        run: curl -X POST "${{ secrets.RENDER_DEV_DEPLOY_HOOK }}"
 
