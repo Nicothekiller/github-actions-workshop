@@ -95,3 +95,11 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+  deploy-prod:
+    runs-on: ubuntu-latest
+    needs: docker-push
+    if: startsWith(githun.ref, 'refs/tags/v')
+    steps:
+      - name: Trigger render PROD deploy
+        run: curl -X POST "${{ secrets.RENDER_PROD_DEPLOY_HOOK }}"
+
